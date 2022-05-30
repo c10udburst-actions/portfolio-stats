@@ -1,1 +1,62 @@
+name: generate stats
 
+concurrency:
+  group: "main"
+  cancel-in-progress: false
+
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+          architecture: 'x64'
+
+      # Cache dependencies. From:
+      # https://github.com/actions/cache/blob/master/examples.md#python---pip
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      # Install dependencies with `pip`
+      - name: Install requirements
+        run: |
+          python3 -m pip install --upgrade pip setuptools wheel
+          python3 -m pip install -r requirements.txt
+      - name: Generate JSON files
+        run: |
+          python3 --version
+          python3 main.py
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      
+      - name: Checkout data
+        uses: actions/checkout@v2
+        with:
+          ref: data
+          path: data
+      
+      - name: Push stats
+        run: |
+          cp *-stats.json ./data/
+          cd data
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add .
+          git commit -m "chore(docs): Update stats" || exit 0   # do not error if nothing to commit
+          git push
+          
