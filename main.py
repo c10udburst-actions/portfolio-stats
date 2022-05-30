@@ -56,7 +56,7 @@ async def main():
         if repo['viewerPermission'] != "ADMIN" or repo['isFork']:  # skip repositories viewer doesn't own or that are forks
             continue
         
-        stats['repos']['count] += 1
+        stats['repos']['count'] += 1
         stats['repos']['issues'] += repo['issues']['totalCount'] or 0
         stats['repos']['stars'] += repo['stargazers']['totalCount'] or 0
         stats['repos']['forks'] += repo['forks']['totalCount'] or 0
