@@ -1,3 +1,4 @@
+from datetime import datetime
 import asyncio
 import json
 
@@ -5,6 +6,7 @@ from api import Api, traverse_object
 
 
 async def main():
+    
     # fetch data
     api = Api()
     basic = traverse_object(await api.query("basic"), "data>viewer")  # statistics like followers, issues etc
@@ -18,8 +20,8 @@ async def main():
     await api.session.close()
 
     # parse data
-
     stats = {
+        'timestamp': int(datetime.now().timestamp()),
         'followers': basic['followers']['totalCount'] or 0,
         'issues': basic['issues']['totalCount'] or 0,
         'organizations': basic['organizations']['totalCount'] or 0,
@@ -91,7 +93,6 @@ async def main():
             stats['languages'][lang_name] += file['size']
 
     # save data
-
     with open("./github-stats.json", "w+") as fp:
         json.dump(stats, fp, sort_keys=True, ensure_ascii=True)
 
