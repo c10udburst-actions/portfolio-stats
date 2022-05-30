@@ -1,0 +1,52 @@
+query OwnerRepositories {
+  viewer {
+    repositories(first: 100, affiliations: OWNER, $cursor) {
+      nodes {
+        viewerPermission
+        issues {
+          totalCount
+        }
+        languages(first: 8) {
+          edges {
+            size
+            node {
+              name
+            }
+          }
+        }
+        forks {
+          totalCount
+        }
+        pullRequests {
+          totalCount
+        }
+        releases {
+          totalCount
+        }
+        isFork
+        nameWithOwner
+        packages {
+          totalCount
+        }
+        stargazers {
+          totalCount
+        }
+        watchers {
+          totalCount
+        }
+        deployments {
+          totalCount
+        }
+        environments {
+          totalCount
+        }
+        diskUsage
+        isPrivate
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+}

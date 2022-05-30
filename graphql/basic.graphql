@@ -1,0 +1,29 @@
+query Basic {
+  viewer {
+    followers {
+      totalCount
+    }
+    issues {
+      totalCount
+    }
+    organizations {
+      totalCount
+    }
+    commitComments {
+      totalCount
+    }
+    gistComments {
+      totalCount
+    }
+    issueComments {
+      totalCount
+    }
+    contributionsCollection {
+      totalPullRequestReviewContributions
+      totalCommitContributions
+    }
+    repositoryDiscussionComments {
+      totalCount
+    }
+  }
+}

@@ -1,0 +1,61 @@
+query ContributedRepositories {
+  viewer {
+    repositoriesContributedTo(first: 100, $cursor) {
+      nodes {
+        viewerPermission
+        issues {
+          totalCount
+        }
+        languages(first: 8) {
+          edges {
+            size
+            node {
+              name
+            }
+          }
+        }
+        forks {
+          totalCount
+        }
+        pullRequests {
+          totalCount
+        }
+        releases {
+          totalCount
+        }
+        isFork
+        nameWithOwner
+        packages {
+          totalCount
+        }
+        stargazers {
+          totalCount
+        }
+        watchers {
+          totalCount
+        }
+        deployments {
+          totalCount
+        }
+        environments {
+          totalCount
+        }
+        diskUsage
+        owner {
+          avatarUrl
+          login
+          ... on Organization {
+            membersWithRole {
+              totalCount
+            }
+          }
+        }
+        isPrivate
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+}

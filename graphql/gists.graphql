@@ -1,0 +1,24 @@
+query Gists {
+  viewer {
+    gists(first: 100, $cursor) {
+      nodes {
+        stargazers {
+          totalCount
+        }
+        forks {
+          totalCount
+        }
+        files {
+          size
+          language {
+            name
+          }
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+}
