@@ -32,6 +32,7 @@ async def main():
         'pullRequestReviews': basic['contributionsCollection']['totalPullRequestReviewContributions'] or 0,
         'commits': basic['contributionsCollection']['totalCommitContributions' or 0],
         'repos': {
+            'count': 0,
             'issues': 0,
             'stars': 0,
             'forks': 0,
@@ -54,7 +55,8 @@ async def main():
     for repo in repos:  # go through all repositories and increment values accordingly
         if repo['viewerPermission'] != "ADMIN" or repo['isFork']:  # skip repositories viewer doesn't own or that are forks
             continue
-
+        
+        stats['repos']['count] += 1
         stats['repos']['issues'] += repo['issues']['totalCount'] or 0
         stats['repos']['stars'] += repo['stargazers']['totalCount'] or 0
         stats['repos']['forks'] += repo['forks']['totalCount'] or 0
