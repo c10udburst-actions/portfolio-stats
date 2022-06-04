@@ -1,0 +1,20 @@
+query HttpRequests {
+  viewer {
+    accounts(filter:{
+      accountTag: $account
+    }) {
+      httpRequests1dGroups(limit: 10000, filter:{
+        date: $date
+      }) {
+        uniq {
+            uniques
+          }
+          sum {
+            requests
+            bytes
+            cachedBytes
+          }
+      }
+    }
+  }
+}

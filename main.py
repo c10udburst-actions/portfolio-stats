@@ -1,22 +1,35 @@
-from datetime import datetime
 import asyncio
 import json
+from datetime import datetime, timedelta
+from os import getenv
+from sys import stderr
 
 from api import Api, traverse_object
 
 
-async def main():
-    
+async def github():
     # fetch data
-    api = Api()
-    basic = traverse_object(await api.query("basic"), "data>viewer")  # statistics like followers, issues etc
+    token = getenv("GH_TOKEN")
+    api = Api("https://api.github.com/graphql", {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    })
+    basic = traverse_object(await api.query("github/basic"), "data>viewer")  # statistics like followers, issues etc
     repos = await asyncio.gather(
-        api.paginated_query("owner-repos", "data>viewer>repositories"),
-        api.paginated_query("contributed-repos", "data>viewer>repositoriesContributedTo")
+        api.paginated_query("github/owner-repos",
+                            "data>viewer>repositories>nodes",
+                            "data>viewer>repositories>pageInfo>endCursor"),
+        api.paginated_query("github/contributed-repos",
+                            "data>viewer>repositoriesContributedTo>nodes",
+                            "data>viewer>repositories>pageInfo>endCursor")
     )
     repos = [item for sublist in repos for item in sublist]  # flatten list
-    prs = await api.paginated_query("prs", "data>viewer>pullRequests")
-    gists = await api.paginated_query("gists", "data>viewer>gists")
+    prs = await api.paginated_query("github/prs",
+                                    "data>viewer>pullRequests>nodes",
+                                    "data>viewer>pullRequests>pageInfo>endCursor")
+    gists = await api.paginated_query("github/gists",
+                                      "data>viewer>gists>nodes",
+                                      "data>viewer>gists>pageInfo>endCursor")
     await api.session.close()
 
     # parse data
@@ -55,9 +68,10 @@ async def main():
     }
 
     for repo in repos:  # go through all repositories and increment values accordingly
-        if repo['viewerPermission'] != "ADMIN" or repo['isFork']:  # skip repositories viewer doesn't own or that are forks
+        # skip repositories viewer doesn't own or that are forks
+        if repo['viewerPermission'] != "ADMIN" or repo['isFork']:
             continue
-        
+
         stats['repos']['count'] += 1
         stats['repos']['issues'] += repo['issues']['totalCount'] or 0
         stats['repos']['stars'] += repo['stargazers']['totalCount'] or 0
@@ -97,5 +111,42 @@ async def main():
         json.dump(stats, fp, sort_keys=True, ensure_ascii=True)
 
 
+async def cloudflare():
+    token = getenv("CF_TOKEN")
+    account = getenv("CF_ACCOUNT")
+    api = Api("https://api.cloudflare.com/client/v4/graphql", {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/json"
+    })
+    stats = {
+        'unique': 0,
+        'requests': 0
+    }
+
+    # fetch and parse
+
+    for delta in range(30):
+        date = (datetime.now().date() - timedelta(days=delta)).isoformat()
+        resp = await api.query("cloudflare/http", account=f'"{account}"', date=f'"{date}"')
+        res = traverse_object(resp, "data>viewer>accounts>[0]>httpRequests1dGroups")
+        if not res:
+            break
+        for entry in res:
+            stats['unique'] += entry['uniq']['uniques'] or 0
+            stats['requests'] += entry['sum']['requests'] or 0
+
+    # save
+    with open("./cloudflare-stats.json", "w+") as fp:
+        json.dump(stats, fp, sort_keys=True, ensure_ascii=True)
+
+
+async def main():
+    return await asyncio.gather(github(), cloudflare(), return_exceptions=True)
+
 if __name__ == '__main__':
-    asyncio.run(main())
+    res = asyncio.run(main())
+    errors = [ex for ex in res if isinstance(ex, Exception)]
+    if errors:
+        for error in errors:
+            print(error, file=stderr)
+        raise SystemExit(1)

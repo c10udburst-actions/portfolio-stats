@@ -1,6 +1,6 @@
 query Gists {
   viewer {
-    gists(first: 100, $cursor) {
+    gists(first: 100, after: $cursor) {
       nodes {
         stargazers {
           totalCount

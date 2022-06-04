@@ -2,4 +2,4 @@
 **.pyc
 venv
 .idea
-github-stats.json
+*-stats.json

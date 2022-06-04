@@ -1,6 +1,6 @@
-query ContributedRepositories {
+query OwnerRepositories {
   viewer {
-    repositoriesContributedTo(first: 100, $cursor) {
+    repositories(first: 100, affiliations: OWNER, after: $cursor) {
       nodes {
         viewerPermission
         issues {
@@ -41,15 +41,6 @@ query ContributedRepositories {
           totalCount
         }
         diskUsage
-        owner {
-          avatarUrl
-          login
-          ... on Organization {
-            membersWithRole {
-              totalCount
-            }
-          }
-        }
         isPrivate
       }
       pageInfo {

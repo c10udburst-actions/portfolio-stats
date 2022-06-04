@@ -43,6 +43,8 @@ jobs:
           python3 main.py
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CF_ACCOUNT }}
+          CF_TOKEN: ${{ secrets.CF_TOKEN }}
       
       - name: Checkout data
         uses: actions/checkout@v2

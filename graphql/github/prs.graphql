@@ -1,6 +1,6 @@
 query PullRequests {
   viewer {
-    pullRequests(first: 100, $cursor) {
+    pullRequests(first: 100, after: $cursor) {
       pageInfo {
         endCursor
         hasNextPage
