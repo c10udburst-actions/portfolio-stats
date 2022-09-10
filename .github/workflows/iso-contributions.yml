@@ -1,0 +1,23 @@
+# Visit https://github.com/lowlighter/metrics#-documentation for full reference
+name: Isomertic Contribution graph
+on:
+  schedule: [{cron: "0 5 * * *"}]
+  workflow_dispatch:
+jobs:
+  github-metrics:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+          user: C10udburst
+          template: classic
+          base: ""
+          base_skip: yes
+          config_display: large
+          config_timezone: Europe/Warsaw
+          plugin_isocalendar: yes
+          plugin_isocalendar_duration: full-year
