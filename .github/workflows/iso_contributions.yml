@@ -29,7 +29,7 @@ jobs:
           path: data
       - name: Move generated SVG to the proper path
         run: |
-          sudo mv ./metrics_renders/github-metrics.svg ./data/iso-contributions.svg
+          sudo mv ./metrics_renders/*.svg ./data/iso-contributions.svg
       - name: Push data
         run: |
           cd data
