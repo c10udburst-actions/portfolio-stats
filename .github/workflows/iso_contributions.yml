@@ -12,6 +12,7 @@ jobs:
       - uses: lowlighter/metrics@latest
         with:
           token: ${{ secrets.GH_TOKEN }}
+          output_action: none
 
           user: C10udburst
           template: classic
@@ -21,3 +22,19 @@ jobs:
           config_timezone: Europe/Warsaw
           plugin_isocalendar: yes
           plugin_isocalendar_duration: full-year
+      - name: Checkout data
+        uses: actions/checkout@v2
+        with:
+          ref: data
+          path: data
+      - name: Move generated SVG to the proper path
+        run: |
+          sudo mv ./metrics_renders/github-metrics.svg ./data/iso-contributions.svg
+      - name: Push data
+        run: |
+          cd data
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add .
+          git commit -m "chore(docs): Update iso contributions" || exit 0   # do not error if nothing to commit
+          git push
